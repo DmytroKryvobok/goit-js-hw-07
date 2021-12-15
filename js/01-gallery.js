@@ -23,13 +23,10 @@ function createMarkupOfImgCard(gallery) {
     }).join('');
 }
 
-const imageEl = galleryContainer.querySelector('.gallery__image');
+galleryContainer.addEventListener('click', onImageCardClick);
+document.addEventListener('keydown', onKeyboardClick);
 
-const modal = basicLightbox.create(`
-		<img src="${imageEl.dataset.source}" class="gallery__modal">
-	`);
-
-const onImageCardClick = e => {
+function onImageCardClick(e) {
     e.preventDefault();
     
     const isImgEl = e.target.classList.contains('gallery__image');
@@ -37,17 +34,29 @@ const onImageCardClick = e => {
         return;
     }
 
+    let modal = basicLightbox.create(`
+            <img src="${e.target.dataset.source}" class="gallery__modal">
+        `, {
+        onShow: modal => {
+            window.addEventListener('keydown', onKeyboardClick);
+            console.log('onShow', modal);
+        },
+        onClose: modal => {
+            window.removeEventListener('keydown', onKeyboardClick);
+            console.log('onClose', modal);
+        }
+    });
+    
     modal.show();
-}
 
-const closeByEsc = evt => {
-    if (evt.code === "Escape") {
-        modal.close();
+    function onKeyboardClick(e) {
+        if (e.code === "Escape") {
+            modal.close();
+        }
     }
 }
 
-galleryContainer.addEventListener('click', onImageCardClick);
-document.addEventListener('keydown', closeByEsc);
+
 
 
 
